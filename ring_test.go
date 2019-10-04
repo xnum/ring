@@ -11,7 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/thetannerryan/ring"
+	"github.com/stretchr/testify/assert"
+	"github.com/xnum/ring"
 )
 
 const (
@@ -261,4 +262,26 @@ func intToByte(b []byte, v int) {
 	b[1] = byte(v >> 8)
 	b[2] = byte(v >> 16)
 	b[3] = byte(v >> 24)
+}
+
+func TestRing(t *testing.T) {
+	assert := assert.New(t)
+
+	filter, err := ring.Init(1000, 0.03)
+	assert.NoError(err)
+
+	b := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	d := []byte{0x77, 0x50, 0x52, 0x48, 0x57, 0x32, 0x32, 0x77}
+
+	copy(b, d)
+	assert.False(filter.Test(b[:3]))
+	assert.Equal(b, d)
+
+	copy(b, d)
+	filter.Add(b[:3])
+	assert.Equal(b, d)
+
+	copy(b, d)
+	filter.Add(b[:3])
+	assert.Equal(b, d)
 }
